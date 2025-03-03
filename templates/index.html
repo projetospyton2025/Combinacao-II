@@ -67,9 +67,12 @@
 
     <!-- Nova div separada para o link da tabela estatística -->
     <div class="tabela-link-container">
-        <h3>Deseja ver a tabela completa de estatísticas?</h3>
-        <a href="/tabela_combinacoes" class="tabela-link">Ver Tabela de Estatísticas</a>
-    </div>
+    <h3>Acesse também:</h3>
+		<div class="links-nav">
+			<a href="/tabela_combinacoes" class="tabela-link">Ver Tabela de Estatísticas</a>
+			<a href="/agrupamento_combinacoes" class="tabela-link">Agrupamento de Combinações</a>
+		</div>
+	</div>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/modal.js') }}"></script>

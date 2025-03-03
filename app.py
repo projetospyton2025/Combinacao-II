@@ -2,6 +2,8 @@ from flask import Flask, render_template, jsonify, request
 import os
 import math
 from itertools import combinations
+from combinacoes_utils import analisar_combinacao_especifica, analisar_todas_combinacoes
+from mega_sena_utils import calcular_palpites_mega_sena, calcular_jogos_mega_sena
 
 app = Flask(__name__)
 
@@ -85,6 +87,146 @@ def get_estatisticas():
         })
     
     return jsonify(estatisticas)
+
+
+@app.route('/agrupamento_combinacoes')
+def agrupamento_combinacoes():
+    """Nova rota para a página de agrupamento de combinações"""
+    return render_template('agrupamento_combinacoes.html')
+
+@app.route('/api/combinacao_agrupamentos/<string:combinacao_str>')
+def get_combinacao_agrupamentos(combinacao_str):
+    """
+    Analisa uma combinação específica de dígitos e retorna todos os agrupamentos de 2 em 2.
+    
+    Args:
+        combinacao_str: String com a combinação (ex: "0,1,2,3,4,5,6")
+        
+    Returns:
+        JSON com os dados de agrupamentos
+    """
+    try:
+        # Converter a string para lista de inteiros
+        combinacao = [int(d) for d in combinacao_str.replace(' ', '').split(',')]
+        
+        # Verificar se a combinação é válida
+        if len(combinacao) < 2:
+            return jsonify({"error": "A combinação deve ter pelo menos 2 dígitos"}), 400
+        
+        if any(d < 0 or d > 9 for d in combinacao) or len(set(combinacao)) != len(combinacao):
+            return jsonify({"error": "Combinação inválida. Use dígitos de 0-9 sem repetição."}), 400
+            
+        # Calcular agrupamentos de 2 em 2
+        agrupamentos_dois = list(combinations(combinacao, 2))
+        
+        # Formatar para exibição
+        agrupamentos_formatados = []
+        for ag in agrupamentos_dois:
+            agrupamentos_formatados.append({
+                "par": list(ag),
+                "par_str": f"{ag[0]},{ag[1]}"
+            })
+        
+        # Cálculo correto de palpites para Mega Sena
+        palpites_mega = calcular_jogos_mega_sena(len(combinacao))
+        
+        return jsonify({
+            "combinacao": combinacao,
+            "tamanho": len(combinacao),
+            "tamanho_agrupamento": 2,
+            "total_agrupamentos": len(agrupamentos_dois),
+            "agrupamentos": agrupamentos_formatados,
+            "palpites_mega": palpites_mega
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/api/combinacoes_agrupadas/<int:tamanho>')
+def get_all_combinacoes_agrupadas(tamanho):
+    """
+    Retorna todas as combinações de um tamanho específico com seus agrupamentos de 2 em 2.
+    
+    Args:
+        tamanho: Tamanho das combinações (número de dígitos)
+        
+    Returns:
+        JSON com todas as combinações e seus agrupamentos
+    """
+    try:
+        # Verificar se o tamanho está dentro dos limites permitidos
+        if tamanho < 3 or tamanho > 10:
+            return jsonify({"error": "Tamanho inválido. Deve ser entre 3 e 10."}), 400
+        
+        # Gerar todas as combinações possíveis
+        digitos = list(range(10))  # dígitos de 0 a 9
+        todas_combinacoes = list(combinations(digitos, tamanho))
+        
+        # Calcular agrupamentos para cada combinação
+        resultados = []
+        for comb in todas_combinacoes:
+            comb_lista = list(comb)
+            agrupamentos_dois = list(combinations(comb_lista, 2))
+            
+            # Formatar para exibição
+            resultados.append({
+                "combinacao": comb_lista,
+                "combinacao_str": ",".join(map(str, comb_lista)),
+                "total_agrupamentos": len(agrupamentos_dois),
+                "agrupamentos": [list(ag) for ag in agrupamentos_dois]
+            })
+        
+        return jsonify({
+            "tamanho": tamanho,
+            "total_combinacoes": len(resultados),
+            "resultados": resultados
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route('/api/mega_sena/<string:combinacao_str>')
+def get_mega_sena_palpites(combinacao_str):
+    """
+    Calcula o número de palpites possíveis para a Mega Sena
+    baseado em uma combinação de dígitos.
+    
+    Args:
+        combinacao_str: String com a combinação (ex: "0,1,2,3,4,5,6")
+        
+    Returns:
+        JSON com os dados de palpites para Mega Sena
+    """
+    try:
+        # Converter a string para lista de inteiros
+        combinacao = [int(d) for d in combinacao_str.replace(' ', '').split(',')]
+        
+        # Verificar se a combinação é válida
+        if any(d < 0 or d > 9 for d in combinacao) or len(set(combinacao)) != len(combinacao):
+            return jsonify({"error": "Combinação inválida. Use dígitos de 0-9 sem repetição."}), 400
+            
+        # Cálculo de palpites para Mega Sena
+        palpites_mega = calcular_jogos_mega_sena(len(combinacao))
+        
+        # Total de combinações possíveis na Mega Sena (60 escolher 6)
+        total_mega = math.comb(60, 6)  # 50.063.860
+        
+        # Calcular porcentagem em relação ao total
+        porcentagem = (palpites_mega / total_mega) * 100 if total_mega > 0 else 0
+        
+        return jsonify({
+            "combinacao": combinacao,
+            "tamanho": len(combinacao),
+            "palpites_mega": palpites_mega,
+            "total_mega_sena": total_mega,
+            "porcentagem_cobertura": round(porcentagem, 6)
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))

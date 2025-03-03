@@ -192,3 +192,25 @@ footer {
     color: #333; /* Cor do texto */
     line-height: 35px;
 }
+.links-nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.tabela-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #2196F3;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.tabela-link:hover {
+    background-color: #0b7dda;
+}
