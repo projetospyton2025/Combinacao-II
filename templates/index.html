@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Combinações de Dígitos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Gerador de Combinações de Dígitos</h1>
+        <div class="controls">
+            <label for="tamanho">Tamanho do grupo:</label>
+            <select id="tamanho">
+                <option value="1">1 dígito</option>
+                <option value="2">2 dígitos</option>
+                <option value="3" selected>3 dígitos</option>
+                <option value="4">4 dígitos</option>
+                <option value="5">5 dígitos</option>
+                <option value="6">6 dígitos</option>
+                <option value="7">7 dígitos</option>
+            </select>
+            <button id="gerar">Gerar Combinações</button>
+        </div>
+        
+        <div class="results" id="results">
+            <h2 id="resultado-titulo"></h2>
+            <div class="info" id="total-info"></div>
+            <div class="combs-container" id="combinacoes"></div>
+            <div class="pagination">
+                <button id="anterior" disabled>Anterior</button>
+                <button id="proximo" disabled>Próximo</button>
+            </div>
+            <div class="info" id="pagina-info"></div>
+        </div>
+    </div>
+
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+	<footer>Feito por: <i>Márcio Fernando Maia -  Todos os direitos reservado - 2025</footer>
+
+</body>
+</html>
