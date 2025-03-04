@@ -94,6 +94,13 @@ def agrupamento_combinacoes():
     """Nova rota para a página de agrupamento de combinações"""
     return render_template('agrupamento_combinacoes.html')
 
+
+@app.route('/tabela_combinacoes_mega_sena')
+def tabela_combinacoes_mega_sena():
+    """Nova rota para a página de tabela_combinacoes_mega_sena"""
+    return render_template('/tabela_combinacoes_mega_sena.html')
+
+
 @app.route('/api/combinacao_agrupamentos/<string:combinacao_str>')
 def get_combinacao_agrupamentos(combinacao_str):
     """
